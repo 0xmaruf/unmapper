@@ -395,26 +395,88 @@ async function loadFromText() {
     }
 }
 
-// Secret patterns to search for
+// Secret patterns to search for - comprehensive list for bug bounty
 const SECRET_PATTERNS = [
-    { name: "AWS Access Key", regex: /AKIA[0-9A-Z]{16}/g },
-    { name: "AWS Secret Key", regex: /[0-9a-zA-Z\/+]{40}/g },
-    { name: "API Key", regex: /['"`]?api[_-]?key['"`]?\s*[:=]\s*['"`]([^'"`\s]{10,})['"`]/gi },
-    { name: "API Secret", regex: /['"`]?api[_-]?secret['"`]?\s*[:=]\s*['"`]([^'"`\s]{10,})['"`]/gi },
-    { name: "Secret", regex: /['"`]?secret['"`]?\s*[:=]\s*['"`]([^'"`\s]{8,})['"`]/gi },
-    { name: "Token", regex: /['"`]?token['"`]?\s*[:=]\s*['"`]([^'"`\s]{10,})['"`]/gi },
-    { name: "Password", regex: /['"`]?password['"`]?\s*[:=]\s*['"`]([^'"`\s]{4,})['"`]/gi },
-    { name: "Bearer Token", regex: /Bearer\s+[a-zA-Z0-9\-_]+\.[a-zA-Z0-9\-_]+\.[a-zA-Z0-9\-_]+/g },
-    { name: "JWT Token", regex: /eyJ[a-zA-Z0-9\-_]+\.[a-zA-Z0-9\-_]+\.[a-zA-Z0-9\-_]+/g },
-    { name: "Private Key", regex: /-----BEGIN\s+(RSA|EC|DSA|OPENSSH|PRIVATE)\s+.*KEY-----/g },
-    { name: "Google API Key", regex: /AIza[0-9A-Za-z\-_]{35}/g },
-    { name: "GitHub Token", regex: /(ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9_]{36,}/g },
-    { name: "Slack Token", regex: /xox[baprs]-[0-9a-zA-Z\-]{10,}/g },
-    { name: "Stripe Key", regex: /(sk|pk)_(test|live)_[0-9a-zA-Z]{24,}/g },
-    { name: "Firebase", regex: /[a-z0-9-]+\.firebaseio\.com/gi },
-    { name: "Hardcoded Credentials", regex: /['"`](admin|root|user)['"`]\s*[:=]\s*['"`]([^'"`]{4,})['"`]/gi },
-    { name: "Authorization Header", regex: /['"`]?authorization['"`]?\s*[:=]\s*['"`]([^'"`]{10,})['"`]/gi },
-    { name: "Client Secret", regex: /['"`]?client[_-]?secret['"`]?\s*[:=]\s*['"`]([^'"`\s]{10,})['"`]/gi },
+    // === CLOUD PROVIDER KEYS ===
+    { name: "🔴 AWS Access Key", regex: /AKIA[0-9A-Z]{16}/g },
+    { name: "🔴 AWS Secret Key", regex: /(?:aws)?[_-]?secret[_-]?(?:access)?[_-]?key['"`]?\s*[:=]\s*['"`]?([A-Za-z0-9\/+=]{40})['"`]?/gi },
+    { name: "🔴 AWS ARN", regex: /arn:aws:[a-z0-9-]+:[a-z0-9-]*:[0-9]*:[a-zA-Z0-9-_\/]+/g },
+    { name: "🔴 Google API Key", regex: /AIza[0-9A-Za-z\-_]{35}/g },
+    { name: "🔴 Google OAuth", regex: /[0-9]+-[a-z0-9_]{32}\.apps\.googleusercontent\.com/gi },
+    { name: "🔴 Azure Key", regex: /[a-zA-Z0-9+\/]{86}==/g },
+    { name: "🔴 Azure Connection String", regex: /DefaultEndpointsProtocol=https;AccountName=[^;]+;AccountKey=[^;]+/gi },
+
+    // === AUTH TOKENS ===
+    { name: "🟠 JWT Token", regex: /eyJ[a-zA-Z0-9\-_]+\.eyJ[a-zA-Z0-9\-_]+\.[a-zA-Z0-9\-_]+/g },
+    { name: "🟠 Bearer Token", regex: /[Bb]earer\s+[a-zA-Z0-9\-_\.]+/g },
+    { name: "🟠 Basic Auth", regex: /[Bb]asic\s+[A-Za-z0-9+\/=]{10,}/g },
+    { name: "🟠 Authorization Header", regex: /['"`]?[Aa]uthorization['"`]?\s*[:=]\s*['"`]([^'"`]{10,})['"`]/gi },
+    { name: "🟠 Auth Token", regex: /['"`]?auth[_-]?token['"`]?\s*[:=]\s*['"`]([^'"`\s]{8,})['"`]/gi },
+    { name: "🟠 Access Token", regex: /['"`]?access[_-]?token['"`]?\s*[:=]\s*['"`]([^'"`\s]{8,})['"`]/gi },
+    { name: "🟠 Refresh Token", regex: /['"`]?refresh[_-]?token['"`]?\s*[:=]\s*['"`]([^'"`\s]{8,})['"`]/gi },
+    { name: "🟠 Session Token", regex: /['"`]?session[_-]?(?:token|id|key)['"`]?\s*[:=]\s*['"`]([^'"`\s]{8,})['"`]/gi },
+
+    // === API KEYS & SECRETS ===
+    { name: "🟡 API Key", regex: /['"`]?api[_-]?key['"`]?\s*[:=]\s*['"`]([^'"`\s]{8,})['"`]/gi },
+    { name: "🟡 API Secret", regex: /['"`]?api[_-]?secret['"`]?\s*[:=]\s*['"`]([^'"`\s]{8,})['"`]/gi },
+    { name: "🟡 App Key", regex: /['"`]?app[_-]?(?:key|id|secret)['"`]?\s*[:=]\s*['"`]([^'"`\s]{8,})['"`]/gi },
+    { name: "🟡 Client ID", regex: /['"`]?client[_-]?id['"`]?\s*[:=]\s*['"`]([^'"`\s]{10,})['"`]/gi },
+    { name: "🟡 Client Secret", regex: /['"`]?client[_-]?secret['"`]?\s*[:=]\s*['"`]([^'"`\s]{8,})['"`]/gi },
+    { name: "🟡 Secret Key", regex: /['"`]?secret[_-]?key['"`]?\s*[:=]\s*['"`]([^'"`\s]{8,})['"`]/gi },
+    { name: "🟡 Private Key", regex: /['"`]?private[_-]?key['"`]?\s*[:=]\s*['"`]([^'"`\s]{8,})['"`]/gi },
+    { name: "🟡 Encryption Key", regex: /['"`]?(?:encrypt|aes|cipher)[_-]?key['"`]?\s*[:=]\s*['"`]([^'"`\s]{8,})['"`]/gi },
+
+    // === PASSWORDS & CREDENTIALS ===
+    { name: "🔴 Password", regex: /['"`]?(?:password|passwd|pwd)['"`]?\s*[:=]\s*['"`]([^'"`]{4,})['"`]/gi },
+    { name: "🔴 Credentials", regex: /['"`]?(?:credentials|creds)['"`]?\s*[:=]\s*['"`]([^'"`]{4,})['"`]/gi },
+    { name: "🔴 Hardcoded Admin", regex: /['"`](admin|root|administrator)['"`]\s*[:=]\s*['"`]([^'"`]{3,})['"`]/gi },
+    { name: "🔴 Database URL", regex: /(?:mongodb|postgres|mysql|redis|amqp):\/\/[^\s'"]+/gi },
+    { name: "🔴 Connection String", regex: /['"`]?(?:connection[_-]?string|db[_-]?url|database[_-]?url)['"`]?\s*[:=]\s*['"`]([^'"`]{10,})['"`]/gi },
+
+    // === PLATFORM SPECIFIC ===
+    { name: "🟣 GitHub Token", regex: /(ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9_]{36,}/g },
+    { name: "🟣 GitHub OAuth", regex: /[0-9a-f]{40}/g },
+    { name: "🟣 GitLab Token", regex: /glpat-[A-Za-z0-9\-_]{20,}/g },
+    { name: "🟣 Slack Token", regex: /xox[baprs]-[0-9a-zA-Z\-]{10,}/g },
+    { name: "🟣 Slack Webhook", regex: /https:\/\/hooks\.slack\.com\/services\/[A-Za-z0-9\/]+/g },
+    { name: "🟣 Discord Webhook", regex: /https:\/\/(?:discord|discordapp)\.com\/api\/webhooks\/[0-9]+\/[A-Za-z0-9_-]+/g },
+    { name: "🟣 Discord Token", regex: /[MN][A-Za-z0-9]{23,}\.[A-Za-z0-9_-]{6}\.[A-Za-z0-9_-]{27}/g },
+    { name: "🟣 Stripe Key", regex: /(sk|pk|rk)_(test|live)_[0-9a-zA-Z]{24,}/g },
+    { name: "🟣 Stripe Webhook", regex: /whsec_[A-Za-z0-9]+/g },
+    { name: "🟣 PayPal Token", regex: /access_token\$production\$[a-z0-9]+\$[a-f0-9]+/gi },
+    { name: "🟣 Square Token", regex: /sq0[a-z]{3}-[A-Za-z0-9\-_]{22,}/g },
+    { name: "🟣 Twilio", regex: /SK[a-f0-9]{32}/g },
+    { name: "🟣 Sendgrid", regex: /SG\.[A-Za-z0-9_-]{22}\.[A-Za-z0-9_-]{43}/g },
+    { name: "🟣 Mailgun", regex: /key-[a-f0-9]{32}/g },
+    { name: "🟣 Mailchimp", regex: /[a-f0-9]{32}-us[0-9]{1,2}/g },
+    { name: "🟣 Firebase URL", regex: /[a-z0-9-]+\.firebaseio\.com/gi },
+    { name: "🟣 Firebase Key", regex: /AAAA[a-zA-Z0-9_-]{7}:[a-zA-Z0-9_-]{140}/g },
+    { name: "🟣 Heroku API Key", regex: /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi },
+    { name: "🟣 NPM Token", regex: /npm_[A-Za-z0-9]{36}/g },
+    { name: "🟣 PyPI Token", regex: /pypi-AgEIcHlwaS5vcmc[A-Za-z0-9\-_]{50,}/g },
+
+    // === CRYPTO KEYS ===
+    { name: "🔑 RSA Private Key", regex: /-----BEGIN\s*RSA\s*PRIVATE\s*KEY-----/g },
+    { name: "🔑 DSA Private Key", regex: /-----BEGIN\s*DSA\s*PRIVATE\s*KEY-----/g },
+    { name: "🔑 EC Private Key", regex: /-----BEGIN\s*EC\s*PRIVATE\s*KEY-----/g },
+    { name: "🔑 OpenSSH Key", regex: /-----BEGIN\s*OPENSSH\s*PRIVATE\s*KEY-----/g },
+    { name: "🔑 PGP Private", regex: /-----BEGIN\s*PGP\s*PRIVATE\s*KEY\s*BLOCK-----/g },
+
+    // === GENERIC SENSITIVE ===
+    { name: "🟢 Token Generic", regex: /['"`]?token['"`]?\s*[:=]\s*['"`]([^'"`\s]{10,})['"`]/gi },
+    { name: "🟢 Secret Generic", regex: /['"`]?secret['"`]?\s*[:=]\s*['"`]([^'"`\s]{8,})['"`]/gi },
+    { name: "🟢 Key Generic", regex: /['"`]?(?<!public[_-])key['"`]?\s*[:=]\s*['"`]([a-zA-Z0-9\-_]{20,})['"`]/gi },
+    { name: "🟢 Hash/Salt", regex: /['"`]?(?:hash|salt)['"`]?\s*[:=]\s*['"`]([^'"`\s]{8,})['"`]/gi },
+    { name: "🟢 Signing Key", regex: /['"`]?(?:signing|sign)[_-]?(?:key|secret)['"`]?\s*[:=]\s*['"`]([^'"`\s]{8,})['"`]/gi },
+
+    // === S3 & STORAGE ===
+    { name: "📦 S3 Bucket", regex: /[a-z0-9.-]+\.s3\.amazonaws\.com/gi },
+    { name: "📦 S3 URL", regex: /s3:\/\/[a-z0-9.-]+/gi },
+    { name: "📦 GCS Bucket", regex: /storage\.googleapis\.com\/[a-z0-9._-]+/gi },
+
+    // === IP & INTERNAL ===
+    { name: "🌐 Internal IP", regex: /(?:10\.[0-9]{1,3}|172\.(?:1[6-9]|2[0-9]|3[01])|192\.168)\.[0-9]{1,3}\.[0-9]{1,3}/g },
+    { name: "🌐 Localhost URL", regex: /(?:https?:\/\/)?(?:localhost|127\.0\.0\.1):[0-9]+[^\s'"]*/gi },
 ];
 
 // Find secrets in output
