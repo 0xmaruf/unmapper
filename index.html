@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JS SourceMap Unmapper</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h2>JS SourceMap Unmapper</h2>
+
+<div class="container">
+
+    <!-- URL Mode -->
+    <div>
+        <h3>1. Load SourceMap from URL === recommended if target cors does not block</h3>
+        <input id="sourcemapUrl" type="text" placeholder="Enter .map file URL">
+        <button onclick="loadFromURL()">Fetch & Unmap</button>
+    </div>
+
+    <hr>
+
+    <!-- File Upload Mode -->
+    <div>
+        <h3>2. Upload .map File (or drag & drop anywhere)====> recommended for large file</h3>
+        <input type="file" id="fileInput" accept=".map,.json" onchange="loadFromFile()">
+    </div>
+
+    <hr>
+
+    <!-- Paste Mode -->
+    <div>
+        <h3>3. Paste SourceMap JSON</h3>
+        <textarea id="sourcemapText" placeholder="Paste entire .map JSON here====> recommended for small/medium file"></textarea>
+        <button onclick="loadFromText()">Unmap Pasted Code</button>
+    </div>
+
+</div>
+
+<div class="actions">
+    <button onclick="findSecrets()" class="btn-danger">🔍 Find Secrets</button>
+    <button onclick="findEndpoints()" class="btn-info">🌐 Find Endpoints</button>
+    <button onclick="copyOutput()">📋 Copy Output</button>
+    <button onclick="clearOutput()">🗑️ Clear</button>
+</div>
+
+<div id="output"></div>
+<pre id="secrets" style="display:none;"></pre>
+
+<script src="script.js"></script>
+</body>
+</html>
