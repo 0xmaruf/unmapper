@@ -176,7 +176,7 @@ function renderFilesPage() {
                 window.binaryFiles[fileId] = { content, filename: src.split('/').pop() || 'binary_file' };
 
                 html += `<div class="file-body binary-download">`;
-                html += `<p>⚠️ Binary file - Download to inspect with <code>strings</code> or hex editor</p>`;
+                html += `<p>⚠️ File without extension maybe js file or if Binary file - Download to inspect with <code>strings</code> or hex editor`;
                 html += `<button onclick="event.stopPropagation(); downloadBinary('${fileId}')" class="btn-download">⬇️ Download ${escapeHtml(src.split('/').pop())}</button>`;
                 html += `</div>`;
             } else {
