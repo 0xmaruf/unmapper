@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JS SourceMap Unmapper by 0xmaruf</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+    <div class="card">
+        <header class="hero">
+            <h2>JS SourceMap Unmapper</h2>
+            <p class="meta">by <a href="https://x.com/0xmaruf" target="_blank" rel="noopener noreferrer">0xmaruf</a></p>
+        </header>
+
+        <div class="container">
+            <section class="section">
+                <h3>1. Upload .map File</h3>
+                <p class="note">Drag & drop anywhere or choose a file for large source maps.</p>
+                <input type="file" id="fileInput" accept=".map,.json" onchange="loadFromFile()">
+            </section>
+
+            <section class="section divider">
+                <h3>2. Paste SourceMap JSON</h3>
+                <p class="note">Recommended for small or medium files.</p>
+                <textarea id="sourcemapText" placeholder="Paste entire .map JSON here"></textarea>
+                <button onclick="loadFromText()">Unmap Pasted Code</button>
+            </section>
+        </div>
+
+        <div class="actions">
+            <button onclick="findSecrets()" class="btn-danger">🔍 Find Secrets</button>
+            <button onclick="findEndpoints()" class="btn-info">🌐 Find Endpoints</button>
+            <button onclick="copyOutput()">📋 Copy Output</button>
+            <button onclick="clearOutput()">🗑️ Clear</button>
+        </div>
+
+        <div id="output"></div>
+        <pre id="secrets" style="display:none;"></pre>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
